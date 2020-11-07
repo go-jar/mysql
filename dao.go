@@ -1,6 +1,10 @@
 package mysql
 
-import "database/sql"
+import (
+	"database/sql"
+
+	"github.com/go-jar/operator"
+)
 
 type ExecResult struct {
 	Err          error
@@ -29,7 +33,7 @@ func (d *Dao) Insert(tableName string, colNames []string, colValues ...[]interfa
 func (d *Dao) DeleteById(tableName string, id int64) *ExecResult {
 	qb := new(QueryBuilder)
 	qb.Delete(tableName).
-		WhereAnd(NewCondition("id", EQUAL, id))
+		WhereAnd(NewCondition("id", operator.EQUAL, id))
 
 	return GetExecResult(d.Exec(qb.Query(), qb.Args()...))
 }
@@ -37,7 +41,7 @@ func (d *Dao) DeleteById(tableName string, id int64) *ExecResult {
 func (d *Dao) DeleteByIds(tableName string, ids ...int64) *ExecResult {
 	qb := new(QueryBuilder)
 	qb.Delete(tableName).
-		WhereAnd(NewCondition("id", IN, ids))
+		WhereAnd(NewCondition("id", operator.IN, ids))
 
 	return GetExecResult(d.Exec(qb.Query(), qb.Args()...))
 }
@@ -46,7 +50,7 @@ func (d *Dao) UpdateById(tableName string, id int64, pairs ...*QueryItem) *ExecR
 	qb := new(QueryBuilder)
 	qb.Update(tableName).
 		Set(pairs...).
-		WhereAnd(NewCondition("id", EQUAL, id))
+		WhereAnd(NewCondition("id", operator.EQUAL, id))
 
 	return GetExecResult(d.Exec(qb.Query(), qb.Args()...))
 }
@@ -55,7 +59,7 @@ func (d *Dao) UpdateByIds(tableName string, ids []int64, pairs ...*QueryItem) *E
 	qb := new(QueryBuilder)
 	qb.Update(tableName).
 		Set(pairs...).
-		WhereAnd(NewCondition("id", IN, ids))
+		WhereAnd(NewCondition("id", operator.IN, ids))
 
 	return GetExecResult(d.Exec(qb.Query(), qb.Args()...))
 }
@@ -63,7 +67,7 @@ func (d *Dao) UpdateByIds(tableName string, ids []int64, pairs ...*QueryItem) *E
 func (d *Dao) SelectById(tableName, what string, id int64) *sql.Row {
 	qb := new(QueryBuilder)
 	qb.Select(tableName, what).
-		WhereAnd(NewCondition("id", EQUAL, id))
+		WhereAnd(NewCondition("id", operator.EQUAL, id))
 
 	return d.QueryRow(qb.Query(), qb.Args()...)
 }
@@ -71,7 +75,7 @@ func (d *Dao) SelectById(tableName, what string, id int64) *sql.Row {
 func (d *Dao) SelectByIds(tableName, what, orderBy string, ids ...int64) (*sql.Rows, error) {
 	qb := new(QueryBuilder)
 	qb.Select(tableName, what).
-		WhereAnd(NewCondition("id", IN, ids)).
+		WhereAnd(NewCondition("id", operator.IN, ids)).
 		OrderBy(orderBy)
 
 	return d.Query(qb.Query(), qb.Args()...)
@@ -80,7 +84,7 @@ func (d *Dao) SelectByIds(tableName, what, orderBy string, ids ...int64) (*sql.R
 func (d *Dao) SelectByIdsLimit(tableName, what, orderBy string, offset, limit int, ids ...int64) (*sql.Rows, error) {
 	qb := new(QueryBuilder)
 	qb.Select(tableName, what).
-		WhereAnd(NewCondition("id", IN, ids)).
+		WhereAnd(NewCondition("id", operator.IN, ids)).
 		OrderBy(orderBy).
 		Limit(offset, limit)
 

@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"fmt"
+	"github.com/go-jar/operator"
 	"testing"
 )
 
@@ -21,12 +22,12 @@ func TestInsert(t *testing.T) {
 func TestSelect(t *testing.T) {
 	qb.Select(TABLE_NAME, "*, count(*)").
 		WhereAnd(
-			NewCondition("name", EQUAL, "c"),
-			NewCondition("name", LIKE, "c%")).
+			NewCondition("name", operator.EQUAL, "c"),
+			NewCondition("name", operator.LIKE, "c%")).
 		GroupBy("name").
 		HavingAnd(
-			NewCondition("age", GREATER_EQUAL, 0),
-			NewCondition("age", LESS_EQUAL, 10)).
+			NewCondition("age", operator.GREATER_EQUAL, 0),
+			NewCondition("age", operator.LESS_EQUAL, 10)).
 		OrderBy("age").
 		Limit(0, 10)
 
@@ -37,8 +38,8 @@ func TestUpdate(t *testing.T) {
 	qb.Update(TABLE_NAME).
 		Set(NewPair("name", "e"), NewPair("age", 7)).
 		WhereOr(
-			NewCondition("name", EQUAL, "a"),
-			NewCondition("age", LESS_EQUAL, 6))
+			NewCondition("name", operator.EQUAL, "a"),
+			NewCondition("age", operator.LESS_EQUAL, 6))
 
 	printQueryAndArgs()
 }
@@ -46,7 +47,7 @@ func TestUpdate(t *testing.T) {
 func TestDelete(t *testing.T) {
 	qb.Delete(TABLE_NAME).
 		WhereAnd(
-			NewCondition("name", IN, []string{"cc", "dd"}))
+			NewCondition("name", operator.IN, []string{"cc", "dd"}))
 
 	printQueryAndArgs()
 }

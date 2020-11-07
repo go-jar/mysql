@@ -1,21 +1,9 @@
 package mysql
 
 import (
+	"github.com/go-jar/operator"
 	"reflect"
 	"strings"
-)
-
-const (
-	EQUAL         = "="
-	NOT_EQUAL     = "!="
-	LESS          = "<"
-	LESS_EQUAL    = "<="
-	GREATER       = ">"
-	GREATER_EQUAL = ">="
-	IN            = "in"
-	NOT_IN        = "not in"
-	LIKE          = "like"
-	BETWEEN       = "between"
 )
 
 type QueryItem struct {
@@ -207,19 +195,19 @@ func (qb *QueryBuilder) buildCondition(andOr string, conditions ...*QueryItem) {
 
 func (qb *QueryBuilder) buildConditionWhere(condition *QueryItem) {
 	switch condition.Condition {
-	case EQUAL, NOT_EQUAL, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL:
+	case operator.EQUAL, operator.NOT_EQUAL, operator.LESS, operator.LESS_EQUAL, operator.GREATER, operator.GREATER_EQUAL:
 		qb.query += condition.Name + " " + condition.Condition + " ? "
 		qb.args = append(qb.args, condition.Value)
-	case LIKE:
+	case operator.LIKE:
 		qb.query += condition.Name + " like ?"
 		qb.args = append(qb.args, condition.Value)
-	case BETWEEN:
+	case operator.BETWEEN:
 		qb.query += condition.Name + " between ? and ?"
 		rev := reflect.ValueOf(condition.Value)
 		qb.args = append(qb.args, rev.Index(0).Interface(), rev.Index(1).Interface())
-	case IN:
+	case operator.IN:
 		qb.buildConditionInOrNot("in", condition)
-	case NOT_IN:
+	case operator.NOT_IN:
 		qb.buildConditionInOrNot("not in", condition)
 	}
 }
