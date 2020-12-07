@@ -1,9 +1,10 @@
 package mysql
 
 import (
-	"github.com/go-jar/operator"
 	"reflect"
 	"strings"
+
+	"github.com/go-jar/operator"
 )
 
 type QueryItem struct {
@@ -13,6 +14,14 @@ type QueryItem struct {
 }
 
 func NewCondition(name, condition string, value interface{}) *QueryItem {
+	return &QueryItem{
+		Name:      name,
+		Condition: condition,
+		Value:     value,
+	}
+}
+
+func NewQueryItem(name, condition string, value interface{}) *QueryItem {
 	return &QueryItem{
 		Name:      name,
 		Condition: condition,
@@ -152,7 +161,7 @@ func (qb *QueryBuilder) HavingOr(conditions ...*QueryItem) *QueryBuilder {
 	return qb
 }
 
-func (qb *QueryBuilder) Limit(offset, cnt int) *QueryBuilder {
+func (qb *QueryBuilder) Limit(offset, cnt int64) *QueryBuilder {
 	if offset < 0 || cnt < 0 {
 		return nil
 	}

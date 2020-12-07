@@ -11,9 +11,7 @@ import (
 var client *Client
 
 func init() {
-	logger, _ := golog.NewConsoleLogger(golog.LEVEL_INFO)
-	config := NewConfig("root", "passwd", "127.0.0.1", "3306", "demo")
-	client, _ = NewClient(config, logger)
+	client = getTestClient()
 }
 
 func TestClient_Exec(t *testing.T) {

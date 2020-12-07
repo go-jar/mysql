@@ -1,5 +1,7 @@
 package mysql
 
+import "github.com/go-jar/golog"
+
 /*
 create database demo;
 
@@ -17,4 +19,13 @@ type DemoItem struct {
 	Id   int64
 	Name string
 	Age  string
+}
+
+func getTestClient() *Client {
+	config := NewConfig("root", "passwd", "127.0.0.1", "3306", "demo")
+
+	logger, _ := golog.NewConsoleLogger(golog.LEVEL_INFO)
+	client, _ := NewClient(config, logger)
+
+	return client
 }

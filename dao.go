@@ -9,7 +9,7 @@ import (
 type ExecResult struct {
 	Err          error
 	LastInsertId int64
-	RawAffected  int64
+	RowsAffected int64
 }
 
 type Dao struct {
@@ -81,7 +81,7 @@ func (d *Dao) SelectByIds(tableName, what, orderBy string, ids ...int64) (*sql.R
 	return d.Query(qb.Query(), qb.Args()...)
 }
 
-func (d *Dao) SelectByIdsLimit(tableName, what, orderBy string, offset, limit int, ids ...int64) (*sql.Rows, error) {
+func (d *Dao) SelectByIdsLimit(tableName, what, orderBy string, offset, limit int64, ids ...int64) (*sql.Rows, error) {
 	qb := new(QueryBuilder)
 	qb.Select(tableName, what).
 		WhereAnd(NewCondition("id", operator.IN, ids)).
@@ -113,7 +113,7 @@ func (d *Dao) SelectTotalOr(tableName string, conditions ...*QueryItem) (int64, 
 	return total, err
 }
 
-func (d *Dao) SimpleSelectAnd(tableName, what, orderBy string, offset, limit int, conditions ...*QueryItem) (*sql.Rows, error) {
+func (d *Dao) SimpleSelectAnd(tableName, what, orderBy string, offset, limit int64, conditions ...*QueryItem) (*sql.Rows, error) {
 	qb := new(QueryBuilder)
 	qb.Select(tableName, what).
 		WhereAnd(conditions...).
@@ -123,7 +123,7 @@ func (d *Dao) SimpleSelectAnd(tableName, what, orderBy string, offset, limit int
 	return d.Query(qb.Query(), qb.Args()...)
 }
 
-func (d *Dao) SimpleSelectOr(tableName, what, orderBy string, offset, limit int, conditions ...*QueryItem) (*sql.Rows, error) {
+func (d *Dao) SimpleSelectOr(tableName, what, orderBy string, offset, limit int64, conditions ...*QueryItem) (*sql.Rows, error) {
 	qb := new(QueryBuilder)
 	qb.Select(tableName, what).
 		WhereOr(conditions...).
@@ -148,7 +148,7 @@ func GetExecResult(result sql.Result, err error) *ExecResult {
 			if err != nil {
 				execResult.Err = err
 			} else {
-				execResult.RawAffected = ra
+				execResult.RowsAffected = ra
 			}
 		}
 	}
