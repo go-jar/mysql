@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"fmt"
+	"github.com/go-jar/golog"
 	"github.com/go-jar/operator"
 	"github.com/go-jar/pool"
 	"reflect"
@@ -40,7 +41,8 @@ func TestOrmInsertGetListUpdateDelete(t *testing.T) {
 	}
 
 	pool := NewPool(config, newMysqlTestClient)
-	orm := NewOrm(pool)
+	logger, _ := golog.NewConsoleLogger(golog.LEVEL_INFO)
+	orm := NewOrm(pool).SetLogger(logger)
 
 	item := &demoEntity{
 		Name:   "tdj",

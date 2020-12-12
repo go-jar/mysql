@@ -19,7 +19,8 @@ type Orm struct {
 
 func NewOrm(pool *Pool) *Orm {
 	return &Orm{
-		pool: pool,
+		pool:   pool,
+		logger: new(golog.NoopLogger),
 	}
 }
 
