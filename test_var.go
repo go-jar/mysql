@@ -23,6 +23,6 @@ type DemoItem struct {
 
 func newMysqlTestClient() (*Client, error) {
 	logger, _ := golog.NewConsoleLogger(golog.LEVEL_INFO)
-	config := NewConfig("root", "yuntest#cloud", "10.66.172.152", "3306", "demo")
+	config := NewConfig("root", "passwd", "127.0.0.1", "3306", "demo")
 	return NewClient(config, logger)
 }
