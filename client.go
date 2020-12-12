@@ -47,24 +47,27 @@ func NewClient(config *Config, logger golog.ILogger) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) SetLogger(logger golog.ILogger) {
+func (c *Client) SetLogger(logger golog.ILogger) *Client {
 	if logger == nil {
 		logger = new(golog.NoopLogger)
 	}
 
 	c.logger = logger
+	return c
 }
 
-func (c *Client) SetTraceId(traceId []byte) {
+func (c *Client) SetTraceId(traceId []byte) *Client {
 	if traceId == nil {
 		traceId = []byte("-")
 	}
 
 	c.traceId = traceId
+	return c
 }
 
-func (c *Client) SetLogPrefix(logPrefix []byte) {
+func (c *Client) SetLogPrefix(logPrefix []byte) *Client {
 	c.logPrefix = logPrefix
+	return c
 }
 
 func (c *Client) IsClosed() bool {

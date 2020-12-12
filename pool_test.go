@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-jar/golog"
 	"github.com/go-jar/pool"
 )
 
@@ -21,12 +20,6 @@ func TestPool(t *testing.T) {
 	testPool(pool, t)
 	time.Sleep(time.Second * 7)
 	testPool(pool, t)
-}
-
-func newMysqlTestClient() (*Client, error) {
-	logger, _ := golog.NewConsoleLogger(golog.LEVEL_INFO)
-	config := NewConfig("root", "passwd", "127.0.0.1", "3306", "demo")
-	return NewClient(config, logger)
 }
 
 func testPool(p *Pool, t *testing.T) {

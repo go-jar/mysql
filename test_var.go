@@ -21,11 +21,8 @@ type DemoItem struct {
 	Age  string
 }
 
-func getTestClient() *Client {
-	config := NewConfig("root", "passwd", "127.0.0.1", "3306", "demo")
-
+func newMysqlTestClient() (*Client, error) {
 	logger, _ := golog.NewConsoleLogger(golog.LEVEL_INFO)
-	client, _ := NewClient(config, logger)
-
-	return client
+	config := NewConfig("root", "yuntest#cloud", "10.66.172.152", "3306", "demo")
+	return NewClient(config, logger)
 }

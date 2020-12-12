@@ -18,9 +18,9 @@ func ReflectColNames(ret reflect.Type) []string {
 
 	for i := 0; i < ret.NumField(); i++ {
 		retF := ret.Field(i)
+
 		if retF.Type.Kind() == reflect.Struct {
-			colNames = ReflectColNames(retF.Type)
-			continue
+			colNames = append(colNames, ReflectColNames(retF.Type)...)
 		}
 
 		if name, ok := retF.Tag.Lookup(MYSQL_FIELD_TAG); ok {
@@ -38,8 +38,7 @@ func ReflectInsertColValues(rev reflect.Value) []interface{} {
 	for i := 0; i < rev.NumField(); i++ {
 		revF := rev.Field(i)
 		if revF.Kind() == reflect.Struct {
-			colValues = ReflectInsertColValues(revF)
-			continue
+			colValues = append(colValues, ReflectInsertColValues(revF)...)
 		}
 
 		_, ok := ret.Field(i).Tag.Lookup(MYSQL_FIELD_TAG)
@@ -58,8 +57,7 @@ func ReflectEntityScanValues(rev reflect.Value) []interface{} {
 	for i := 0; i < rev.NumField(); i++ {
 		revF := rev.Field(i)
 		if revF.Kind() == reflect.Struct {
-			scanValues = ReflectEntityScanValues(revF)
-			continue
+			scanValues = append(scanValues, ReflectEntityScanValues(revF)...)
 		}
 
 		_, ok := ret.Field(i).Tag.Lookup(MYSQL_FIELD_TAG)
@@ -78,8 +76,7 @@ func ReflectUpdateItems(refOldV, refNewV reflect.Value, updateFields map[string]
 	for i := 0; i < refNewV.NumField(); i++ {
 		refNewVF := refNewV.Field(i)
 		if refNewVF.Kind() == reflect.Struct {
-			items = ReflectUpdateItems(refOldV.Field(i), refNewVF, updateFields)
-			continue
+			items = append(items, ReflectUpdateItems(refOldV.Field(i), refNewVF, updateFields)...)
 		}
 
 		refNewTF := refNewT.Field(i)
@@ -107,8 +104,7 @@ func ReflectQueryItems(rev reflect.Value, required map[string]bool, conditions m
 	for i := 0; i < rev.NumField(); i++ {
 		revF := rev.Field(i)
 		if revF.Kind() == reflect.Struct {
-			items = ReflectQueryItems(revF, required, conditions)
-			continue
+			items = append(items, ReflectQueryItems(revF, required, conditions)...)
 		}
 
 		retF := ret.Field(i)

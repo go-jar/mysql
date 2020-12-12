@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"strconv"
 	"testing"
-
-	"github.com/go-jar/golog"
 )
 
 var client *Client
 
 func init() {
-	client = getTestClient()
+	client, _ = newMysqlTestClient()
 }
 
 func TestClient_Exec(t *testing.T) {

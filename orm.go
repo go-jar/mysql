@@ -3,20 +3,23 @@ package mysql
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"reflect"
-	"time"
 
-	"github.com/goinbox/gomisc"
+	"github.com/go-jar/golog"
 )
 
 type Orm struct {
-	Dao *Dao
+	pool *Pool
+	dao  *Dao
+
+	idGenerator *IdGenerator
+	traceId     []byte
+	logger      golog.ILogger
 }
 
-func NewOrm(client *Client) *Orm {
+func NewOrm(pool *Pool) *Orm {
 	return &Orm{
-		Dao: NewDao(client),
+		pool: pool,
 	}
 }
 
@@ -28,6 +31,64 @@ type QueryParams struct {
 	OrderBy string
 	Offset  int64
 	Cnt     int64
+}
+
+func (o *Orm) Dao() *Dao {
+	if o.dao == nil {
+		o.dao = &Dao{}
+	}
+
+	if o.dao.Client == nil {
+		o.dao.Client, _ = o.pool.Get()
+		o.dao.Client.SetLogger(o.logger).SetTraceId(o.traceId)
+	}
+
+	return o.dao
+}
+
+func (o *Orm) IdGenerator() *IdGenerator {
+	if o.idGenerator == nil {
+		o.idGenerator = NewIdGenerator(o.Dao().Client)
+	}
+
+	return o.idGenerator
+}
+
+func (o *Orm) SetTraceId(traceId []byte) *Orm {
+	o.traceId = traceId
+	return o
+}
+
+func (o *Orm) SetLogger(logger golog.ILogger) *Orm {
+	o.logger = logger
+	return o
+}
+
+func (o *Orm) Renew(traceId []byte, pool *Pool) *Orm {
+	if o.dao != nil && o.dao.Client != nil {
+		o.PutBackClient()
+	}
+
+	o.traceId = traceId
+	o.pool = pool
+
+	return o
+}
+
+func (o *Orm) SetPool(pool *Pool) *Orm {
+	return o.Renew(o.traceId, pool)
+}
+
+func (o *Orm) PutBackClient() {
+	if !o.dao.Client.IsClosed() {
+		o.dao.Client.SetLogger(new(golog.NoopLogger))
+		_ = o.pool.Put(o.dao.Client)
+	}
+
+	o.dao.Client = nil
+	if o.idGenerator != nil {
+		o.idGenerator.SetClient(nil)
+	}
 }
 
 func (o *Orm) Insert(tableName string, entities ...interface{}) error {
@@ -49,10 +110,9 @@ func (o *Orm) Insert(tableName string, entities ...interface{}) error {
 
 	entity := entities[0]
 	ret := reflect.TypeOf(entity)
-	fmt.Println(ret)
 	colNames := ReflectColNames(ret)
-
-	err := o.Dao.Insert(tableName, colNames, colsValues...).Err
+	err := o.Dao().Insert(tableName, colNames, colsValues...).Err
+	defer o.PutBackClient()
 
 	if err != nil {
 		return err
@@ -64,7 +124,8 @@ func (o *Orm) Insert(tableName string, entities ...interface{}) error {
 func (o *Orm) GetById(tableName string, id int64, entityPtr interface{}) (bool, error) {
 	scanValues := ReflectEntityScanValues(reflect.ValueOf(entityPtr).Elem())
 
-	err := o.Dao.SelectById(tableName, "*", id).Scan(scanValues...)
+	err := o.Dao().SelectById(tableName, "*", id).Scan(scanValues...)
+	defer o.PutBackClient()
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -93,8 +154,8 @@ func (o *Orm) UpdateById(tableName string, id int64, newEntityPtr interface{}, u
 		return nil, nil
 	}
 
-	setItems = append(setItems, NewQueryItem("edit_time", "", time.Now().Format(gomisc.TimeGeneralLayout())))
-	result := o.Dao.UpdateById(tableName, id, setItems...)
+	result := o.Dao().UpdateById(tableName, id, setItems...)
+	defer o.PutBackClient()
 
 	if result.Err != nil {
 		return nil, result.Err
@@ -107,7 +168,8 @@ func (o *Orm) UpdateById(tableName string, id int64, newEntityPtr interface{}, u
 }
 
 func (o *Orm) ListByIds(tableName string, ids []int64, orderBy string, entityType reflect.Type, listPtr interface{}) error {
-	rows, err := o.Dao.SelectByIds(tableName, "*", orderBy, ids...)
+	rows, err := o.Dao().SelectByIds(tableName, "*", orderBy, ids...)
+	defer o.PutBackClient()
 
 	if err != nil {
 		return err
@@ -118,11 +180,14 @@ func (o *Orm) ListByIds(tableName string, ids []int64, orderBy string, entityTyp
 
 func (o *Orm) SimpleQueryAnd(tableName string, qp *QueryParams, entityType reflect.Type, listPtr interface{}) error {
 	var setItems []*QueryItem
+
 	if qp != nil && qp.ParamsStructPtr != nil {
 		setItems = ReflectQueryItems(reflect.ValueOf(qp.ParamsStructPtr).Elem(), qp.Required, qp.Conditions)
 	}
 
-	rows, err := o.Dao.SimpleSelectAnd(tableName, "*", qp.OrderBy, qp.Offset, qp.Cnt, setItems...)
+	rows, err := o.Dao().SimpleSelectAnd(tableName, "*", qp.OrderBy, qp.Offset, qp.Cnt, setItems...)
+
+	defer o.PutBackClient()
 
 	if err != nil {
 		return err
@@ -137,7 +202,8 @@ func (o *Orm) SimpleTotalAnd(tableName string, qp *QueryParams) (int64, error) {
 		items = ReflectQueryItems(reflect.ValueOf(qp.ParamsStructPtr).Elem(), qp.Required, qp.Conditions)
 	}
 
-	total, err := o.Dao.SelectTotalAnd(tableName, items...)
+	total, err := o.Dao().SelectTotalAnd(tableName, items...)
+	defer o.PutBackClient()
 
 	return total, err
 }

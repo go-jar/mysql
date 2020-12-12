@@ -18,7 +18,8 @@ INSERT INTO id_gen (name, max_id) VALUES ('demo', 0);
 */
 
 func TestSqlIdGen(t *testing.T) {
-	idGen := NewIdGenerator(getTestClient())
+	client, _ := newMysqlTestClient()
+	idGen := NewIdGenerator(client)
 
 	for i := 0; i < 10; i++ {
 		id, err := idGen.GenerateId("demo")
