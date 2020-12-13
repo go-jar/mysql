@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"fmt"
-	"github.com/go-jar/operator"
 	"testing"
 )
 
@@ -61,8 +60,8 @@ func TestDaoRead(t *testing.T) {
 	fmt.Println("====================")
 
 	conditions := []*QueryItem{
-		NewCondition("name", operator.EQUAL, "ee"),
-		NewCondition("age", operator.EQUAL, 11),
+		NewCondition("name", COND_EQUAL, "ee"),
+		NewCondition("age", COND_EQUAL, 11),
 	}
 
 	fmt.Println("SimpleSelectAnd: ")
@@ -77,8 +76,8 @@ func TestDaoRead(t *testing.T) {
 	printResult("SelectTotalAnd: ", total)
 
 	conditions = []*QueryItem{
-		NewCondition("name", operator.EQUAL, "dd"),
-		NewCondition("name", operator.EQUAL, "ee"),
+		NewCondition("name", COND_EQUAL, "dd"),
+		NewCondition("name", COND_EQUAL, "ee"),
 	}
 
 	fmt.Println("SimpleSelectOr: ")

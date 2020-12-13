@@ -3,7 +3,6 @@ package mysql
 import (
 	"fmt"
 	"github.com/go-jar/golog"
-	"github.com/go-jar/operator"
 	"github.com/go-jar/pool"
 	"reflect"
 	"testing"
@@ -81,7 +80,7 @@ func TestOrmInsertGetListUpdateDelete(t *testing.T) {
 			Status: 1,
 		},
 		Required:   map[string]bool{"status": true},
-		Conditions: map[string]string{"status": operator.EQUAL},
+		Conditions: map[string]string{"status": COND_EQUAL},
 
 		OrderBy: "id desc",
 		Offset:  0,
