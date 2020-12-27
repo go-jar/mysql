@@ -17,10 +17,11 @@ type SimpleOrm struct {
 	logger      golog.ILogger
 }
 
-func NewSimpleOrm(pool *Pool) *SimpleOrm {
+func NewSimpleOrm(traceId []byte, pool *Pool) *SimpleOrm {
 	return &SimpleOrm{
-		pool:   pool,
-		logger: new(golog.NoopLogger),
+		pool:    pool,
+		traceId: traceId,
+		logger:  new(golog.NoopLogger),
 	}
 }
 

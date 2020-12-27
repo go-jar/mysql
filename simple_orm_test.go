@@ -41,7 +41,7 @@ func TestOrmInsertGetListUpdateDelete(t *testing.T) {
 
 	pool := NewPool(config, newMysqlTestClient)
 	logger, _ := golog.NewConsoleLogger(golog.LEVEL_INFO)
-	orm := NewSimpleOrm(pool).SetLogger(logger)
+	orm := NewSimpleOrm([]byte("-"), pool).SetLogger(logger)
 
 	item := &demoEntity{
 		Name:   "tdj",
