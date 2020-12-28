@@ -93,7 +93,7 @@ func (so *SimpleOrm) PutBackClient() {
 	}
 }
 
-func (so *SimpleOrm) Insert(tableName string, colNames []string, entities ...interface{}) error {
+func (so *SimpleOrm) Insert(tableName string, entities ...interface{}) error {
 	cnt := len(entities)
 	if cnt <= 0 {
 		return errors.New("no values to be inserted")
@@ -110,11 +110,9 @@ func (so *SimpleOrm) Insert(tableName string, colNames []string, entities ...int
 		colsValues[i] = ReflectInsertColValues(rev)
 	}
 
-	if colNames == nil || len(colNames) == 0 {
-		entity := entities[0]
-		ret := reflect.TypeOf(entity)
-		colNames = ReflectColNames(ret)
-	}
+	entity := entities[0]
+	ret := reflect.TypeOf(entity)
+	colNames := ReflectColNames(ret)
 
 	err := so.Dao().Insert(tableName, colNames, colsValues...).Err
 
