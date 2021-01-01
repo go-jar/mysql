@@ -79,7 +79,7 @@ func TestOrmInsertGetListUpdateDelete(t *testing.T) {
 			Status: 1,
 		},
 		Required:   map[string]bool{"status": true},
-		Conditions: map[string]string{"status": COND_EQUAL},
+		Conditions: map[string]string{"status": CondEqual},
 
 		OrderBy: "id desc",
 		Offset:  0,

@@ -60,8 +60,8 @@ func TestDaoRead(t *testing.T) {
 	fmt.Println("====================")
 
 	conditions := []*QueryItem{
-		NewCondition("name", COND_EQUAL, "ee"),
-		NewCondition("age", COND_EQUAL, 11),
+		NewCondition("name", CondEqual, "ee"),
+		NewCondition("age", CondEqual, 11),
 	}
 
 	fmt.Println("SimpleSelectAnd: ")
@@ -76,8 +76,8 @@ func TestDaoRead(t *testing.T) {
 	printResult("SelectTotalAnd: ", total)
 
 	conditions = []*QueryItem{
-		NewCondition("name", COND_EQUAL, "dd"),
-		NewCondition("name", COND_EQUAL, "ee"),
+		NewCondition("name", CondEqual, "dd"),
+		NewCondition("name", CondEqual, "ee"),
 	}
 
 	fmt.Println("SimpleSelectOr: ")
