@@ -26,7 +26,7 @@ type SqlBaseEntity struct {
 }
 
 type demoEntity struct {
-	SqlBaseEntity
+	*SqlBaseEntity
 
 	Name   string `mysql:"name" json:"name"`
 	Status int    `mysql:"status" json:"status"`
@@ -44,16 +44,17 @@ func TestOrmInsertGetListUpdateDelete(t *testing.T) {
 	item := &demoEntity{
 		Name:   "tdj",
 		Status: 1,
-		SqlBaseEntity: SqlBaseEntity{
+		SqlBaseEntity: &SqlBaseEntity{
 			AddTime:  time.Now(),
 			EditTime: time.Now(),
 		},
 	}
 
 	fmt.Println("========test Insert")
-
+	_ = orm
+	_ = item
 	tableName := "demo"
-	err := orm.Insert(tableName, nil, item)
+	err := orm.Insert(tableName, item)
 	if err != nil {
 		fmt.Println(err)
 	}

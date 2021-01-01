@@ -10,11 +10,11 @@ const (
 )
 
 func ReflectColNames(ret reflect.Type) []string {
-	var colNames []string
-
 	if ret.Kind() == reflect.Ptr {
 		ret = ret.Elem()
 	}
+
+	var colNames []string
 
 	for i := 0; i < ret.NumField(); i++ {
 		retF := ret.Field(i)
@@ -32,15 +32,24 @@ func ReflectColNames(ret reflect.Type) []string {
 }
 
 func ReflectInsertColValues(rev reflect.Value) []interface{} {
+	if rev.Type().Kind() == reflect.Ptr {
+		rev = rev.Elem()
+	}
+
 	var colValues []interface{}
-	ret := rev.Type()
 
 	for i := 0; i < rev.NumField(); i++ {
 		revF := rev.Field(i)
+
+		if revF.Kind() == reflect.Ptr {
+			revF = revF.Elem()
+		}
+
 		if revF.Kind() == reflect.Struct {
 			colValues = append(colValues, ReflectInsertColValues(revF)...)
 		}
 
+		ret := rev.Type()
 		_, ok := ret.Field(i).Tag.Lookup(MysqlFieldTag)
 		if ok {
 			colValues = append(colValues, revF.Interface())
@@ -51,11 +60,20 @@ func ReflectInsertColValues(rev reflect.Value) []interface{} {
 }
 
 func ReflectEntityScanValues(rev reflect.Value) []interface{} {
+	if rev.Type().Kind() == reflect.Ptr {
+		rev = rev.Elem()
+	}
+
 	var scanValues []interface{}
 	ret := rev.Type()
 
 	for i := 0; i < rev.NumField(); i++ {
 		revF := rev.Field(i)
+
+		if revF.Kind() == reflect.Ptr {
+			revF = revF.Elem()
+		}
+
 		if revF.Kind() == reflect.Struct {
 			scanValues = append(scanValues, ReflectEntityScanValues(revF)...)
 		}
@@ -70,11 +88,24 @@ func ReflectEntityScanValues(rev reflect.Value) []interface{} {
 }
 
 func ReflectUpdateItems(refOldV, refNewV reflect.Value, updateFields map[string]bool) []*QueryItem {
+	if refOldV.Type().Kind() == reflect.Ptr {
+		refOldV = refOldV.Elem()
+	}
+
+	if refNewV.Type().Kind() == reflect.Ptr {
+		refNewV = refNewV.Elem()
+	}
+
 	var items []*QueryItem
 	refNewT := refNewV.Type()
 
 	for i := 0; i < refNewV.NumField(); i++ {
 		refNewVF := refNewV.Field(i)
+
+		if refNewVF.Kind() == reflect.Ptr {
+			refNewVF = refNewVF.Elem()
+		}
+
 		if refNewVF.Kind() == reflect.Struct {
 			items = append(items, ReflectUpdateItems(refOldV.Field(i), refNewVF, updateFields)...)
 		}
@@ -98,11 +129,20 @@ func ReflectUpdateItems(refOldV, refNewV reflect.Value, updateFields map[string]
 }
 
 func ReflectQueryItems(rev reflect.Value, required map[string]bool, conditions map[string]string) []*QueryItem {
+	if rev.Type().Kind() == reflect.Ptr {
+		rev = rev.Elem()
+	}
+
 	var items []*QueryItem
 	ret := rev.Type()
 
 	for i := 0; i < rev.NumField(); i++ {
 		revF := rev.Field(i)
+
+		if revF.Kind() == reflect.Ptr {
+			revF = revF.Elem()
+		}
+
 		if revF.Kind() == reflect.Struct {
 			items = append(items, ReflectQueryItems(revF, required, conditions)...)
 		}
@@ -152,3 +192,4 @@ func ReflectQueryRowsToEntityList(rows *sql.Rows, ret reflect.Type, listPtr inte
 
 	return nil
 }
+
