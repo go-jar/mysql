@@ -11,10 +11,10 @@ import (
 /*
 CREATE TABLE `demo` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(20) COLLATE utf8mb4_bin NOT NULL DEFAULT '',
-  `status`varchar(20) COLLATE utf8mb4_bin NOT NULL DEFAULT '',
   `add_time` datetime,
   `edit_time` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `name` varchar(20) COLLATE utf8mb4_bin NOT NULL DEFAULT '',
+  `status`varchar(20) COLLATE utf8mb4_bin NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 */
