@@ -3,7 +3,6 @@ package mysql
 import (
 	"fmt"
 	"github.com/go-jar/golog"
-	"github.com/go-jar/pool"
 	"reflect"
 	"testing"
 	"time"
@@ -34,12 +33,11 @@ type demoEntity struct {
 }
 
 func TestOrmInsertGetListUpdateDelete(t *testing.T) {
-	config := &pool.Config{
-		MaxConns:    100,
-		MaxIdleTime: time.Second * 5,
-	}
+	config := &PoolConfig{NewClientFunc: newMysqlTestClient}
+	config.MaxConns = 100
+	config.MaxIdleTime = time.Second * 5
 
-	pool := NewPool(config, newMysqlTestClient)
+	pool := NewPool(config)
 	logger, _ := golog.NewConsoleLogger(golog.LEVEL_INFO)
 	orm := NewSimpleOrm([]byte("-"), pool).SetLogger(logger)
 

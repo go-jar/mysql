@@ -4,17 +4,14 @@ import (
 	"fmt"
 	"testing"
 	"time"
-
-	"github.com/go-jar/pool"
 )
 
 func TestPool(t *testing.T) {
-	config := &pool.Config{
-		MaxConns:    100,
-		MaxIdleTime: time.Second * 5,
-	}
+	config := &PoolConfig{NewClientFunc: newMysqlTestClient}
+	config.MaxConns = 100
+	config.MaxIdleTime = time.Second * 5
 
-	pool := NewPool(config, newMysqlTestClient)
+	pool := NewPool(config)
 
 	testPool(pool, t)
 	testPool(pool, t)

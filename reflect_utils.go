@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	MYSQL_FIELD_TAG = "mysql"
+	MysqlFieldTag = "mysql"
 )
 
 func ReflectColNames(ret reflect.Type) []string {
@@ -23,7 +23,7 @@ func ReflectColNames(ret reflect.Type) []string {
 			colNames = append(colNames, ReflectColNames(retF.Type)...)
 		}
 
-		if name, ok := retF.Tag.Lookup(MYSQL_FIELD_TAG); ok {
+		if name, ok := retF.Tag.Lookup(MysqlFieldTag); ok {
 			colNames = append(colNames, name)
 		}
 	}
@@ -41,7 +41,7 @@ func ReflectInsertColValues(rev reflect.Value) []interface{} {
 			colValues = append(colValues, ReflectInsertColValues(revF)...)
 		}
 
-		_, ok := ret.Field(i).Tag.Lookup(MYSQL_FIELD_TAG)
+		_, ok := ret.Field(i).Tag.Lookup(MysqlFieldTag)
 		if ok {
 			colValues = append(colValues, revF.Interface())
 		}
@@ -60,7 +60,7 @@ func ReflectEntityScanValues(rev reflect.Value) []interface{} {
 			scanValues = append(scanValues, ReflectEntityScanValues(revF)...)
 		}
 
-		_, ok := ret.Field(i).Tag.Lookup(MYSQL_FIELD_TAG)
+		_, ok := ret.Field(i).Tag.Lookup(MysqlFieldTag)
 		if ok {
 			scanValues = append(scanValues, revF.Addr().Interface())
 		}
@@ -80,7 +80,7 @@ func ReflectUpdateItems(refOldV, refNewV reflect.Value, updateFields map[string]
 		}
 
 		refNewTF := refNewT.Field(i)
-		colName, ok := refNewTF.Tag.Lookup(MYSQL_FIELD_TAG)
+		colName, ok := refNewTF.Tag.Lookup(MysqlFieldTag)
 		if !ok {
 			continue
 		}
@@ -108,7 +108,7 @@ func ReflectQueryItems(rev reflect.Value, required map[string]bool, conditions m
 		}
 
 		retF := ret.Field(i)
-		name, ok := retF.Tag.Lookup(MYSQL_FIELD_TAG)
+		name, ok := retF.Tag.Lookup(MysqlFieldTag)
 		if !ok {
 			continue
 		}

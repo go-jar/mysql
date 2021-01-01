@@ -4,19 +4,29 @@ import (
 	"github.com/go-jar/pool"
 )
 
-type Pool struct {
-	pl            *pool.Pool
+type PoolConfig struct {
+	pool.Config
+
 	NewClientFunc func() (*Client, error)
 }
 
-type NewClientFunc func() (*Client, error)
+type Pool struct {
+	pl *pool.Pool
 
-func NewPool(config *pool.Config, ncf NewClientFunc) *Pool {
+	config *PoolConfig
+}
+
+func NewPool(config *PoolConfig) *Pool {
 	p := &Pool{
-		pl:            pool.NewPool(config, nil),
-		NewClientFunc: ncf,
+		config: config,
 	}
-	p.pl.NewItemFunc = p.newConn
+
+	if config.NewConnFunc == nil {
+		config.NewConnFunc = p.newConn
+	}
+
+	p.pl = pool.NewPool(&p.config.Config)
+
 	return p
 }
 
@@ -25,7 +35,8 @@ func (p *Pool) Get() (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return conn.(*Client), err
+
+	return conn.(*Client), nil
 }
 
 func (p *Pool) Put(client *Client) error {
@@ -33,5 +44,5 @@ func (p *Pool) Put(client *Client) error {
 }
 
 func (p *Pool) newConn() (pool.IConn, error) {
-	return p.NewClientFunc()
+	return p.config.NewClientFunc()
 }
