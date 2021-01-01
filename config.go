@@ -41,6 +41,6 @@ func NewConfig(user, passwd, host, port, dbName string) *Config {
 	return &Config{
 		Config: config,
 
-		LogLevel: golog.LEVEL_INFO,
+		LogLevel: golog.LevelInfo,
 	}
 }

@@ -38,7 +38,7 @@ func TestOrmInsertGetListUpdateDelete(t *testing.T) {
 	config.MaxIdleTime = time.Second * 5
 
 	pool := NewPool(config)
-	logger, _ := golog.NewConsoleLogger(golog.LEVEL_INFO)
+	logger, _ := golog.NewConsoleLogger(golog.LevelInfo)
 	orm := NewSimpleOrm([]byte("-"), pool).SetLogger(logger)
 
 	item := &demoEntity{

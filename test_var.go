@@ -22,7 +22,7 @@ type DemoItem struct {
 }
 
 func newMysqlTestClient() (*Client, error) {
-	logger, _ := golog.NewConsoleLogger(golog.LEVEL_INFO)
+	logger, _ := golog.NewConsoleLogger(golog.LevelInfo)
 	config := NewConfig("root", "passwd", "127.0.0.1", "3306", "demo")
 	return NewClient(config, logger)
 }
