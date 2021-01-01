@@ -9,13 +9,13 @@ import (
 func TestPool(t *testing.T) {
 	config := &PoolConfig{NewClientFunc: newMysqlTestClient}
 	config.MaxConns = 100
-	config.MaxIdleTime = time.Second * 5
+	config.MaxIdleTime = time.Second * 2
 
 	pool := NewPool(config)
 
 	testPool(pool, t)
 	testPool(pool, t)
-	time.Sleep(time.Second * 7)
+	time.Sleep(time.Second * 3)
 	testPool(pool, t)
 }
 
