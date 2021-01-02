@@ -177,7 +177,7 @@ func ReflectQueryRowsToEntityList(rows *sql.Rows, ret reflect.Type, listPtr inte
 
 	revListV := reflect.ValueOf(listPtr).Elem()
 	rev := reflect.New(ret)
-	destV := ReflectEntityScanValues(rev.Elem())
+	destV := ReflectEntityScanValues(rev)
 	err := rows.Scan(destV...)
 	if err != nil {
 		return err

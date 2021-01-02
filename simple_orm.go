@@ -3,9 +3,8 @@ package mysql
 import (
 	"database/sql"
 	"errors"
-	"reflect"
-
 	"github.com/go-jar/golog"
+	"reflect"
 )
 
 type SimpleOrm struct {
@@ -15,13 +14,15 @@ type SimpleOrm struct {
 	idGenerator *IdGenerator
 	traceId     []byte
 	logger      golog.ILogger
+	useIdGen    bool
 }
 
-func NewSimpleOrm(traceId []byte, pool *Pool) *SimpleOrm {
+func NewSimpleOrm(traceId []byte, pool *Pool, useIdGen bool) *SimpleOrm {
 	return &SimpleOrm{
-		pool:    pool,
-		traceId: traceId,
-		logger:  new(golog.NoopLogger),
+		pool:     pool,
+		traceId:  traceId,
+		logger:   new(golog.NoopLogger),
+		useIdGen: useIdGen,
 	}
 }
 
@@ -49,6 +50,10 @@ func (so *SimpleOrm) Dao() *Dao {
 }
 
 func (so *SimpleOrm) IdGenerator() *IdGenerator {
+	if !so.useIdGen {
+		return nil
+	}
+
 	if so.idGenerator == nil {
 		so.idGenerator = NewIdGenerator(so.Dao().Client)
 	}
@@ -93,13 +98,29 @@ func (so *SimpleOrm) PutBackClient() {
 	}
 }
 
-func (so *SimpleOrm) Insert(tableName string, entities ...interface{}) error {
+func (so *SimpleOrm) FillEntityForInsert(rev reflect.Value, entityName, idFieldName string) (int64, error) {
+	var id int64
+	var err error
+
+	if so.useIdGen {
+		id, err = so.IdGenerator().GenerateId(entityName)
+		if err != nil {
+			return -1, err
+		}
+		rev.FieldByName(idFieldName).SetInt(id)
+	}
+
+	return id, nil
+}
+
+func (so *SimpleOrm) Insert(tableName, entityName, idFieldName string, entities ...interface{}) ([]int64, error) {
 	cnt := len(entities)
 	if cnt <= 0 {
-		return errors.New("no values to be inserted")
+		return nil, errors.New("no values to be inserted")
 	}
 
 	colsValues := make([][]interface{}, cnt)
+	var ids []int64
 
 	for i, entity := range entities {
 		rev := reflect.ValueOf(entity)
@@ -107,6 +128,12 @@ func (so *SimpleOrm) Insert(tableName string, entities ...interface{}) error {
 			rev = rev.Elem()
 		}
 
+		id, err := so.FillEntityForInsert(rev, entityName, idFieldName)
+		if err != nil {
+			return nil, err
+		}
+
+		ids = append(ids, id)
 		colsValues[i] = ReflectInsertColValues(rev)
 	}
 
@@ -114,15 +141,15 @@ func (so *SimpleOrm) Insert(tableName string, entities ...interface{}) error {
 	ret := reflect.TypeOf(entity)
 	colNames := ReflectColNames(ret)
 
-	err := so.Dao().Insert(tableName, colNames, colsValues...).Err
+	execResult := so.Dao().Insert(tableName, colNames, colsValues...)
 
 	defer so.PutBackClient()
 
-	if err != nil {
-		return err
+	if execResult.Err != nil {
+		return nil, execResult.Err
 	}
 
-	return nil
+	return ids, nil
 }
 
 func (so *SimpleOrm) GetById(tableName string, id int64, entityPtr interface{}) (bool, error) {

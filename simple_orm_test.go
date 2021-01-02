@@ -26,7 +26,7 @@ type SqlBaseEntity struct {
 }
 
 type demoEntity struct {
-	*SqlBaseEntity
+	SqlBaseEntity
 
 	Name   string `mysql:"name" json:"name"`
 	Status int    `mysql:"status" json:"status"`
@@ -39,37 +39,37 @@ func TestOrmInsertGetListUpdateDelete(t *testing.T) {
 
 	pool := NewPool(config)
 	logger, _ := golog.NewConsoleLogger(golog.LevelInfo)
-	orm := NewSimpleOrm([]byte("-"), pool).SetLogger(logger)
+	orm := NewSimpleOrm([]byte("-"), pool, true).SetLogger(logger)
 
 	item := &demoEntity{
 		Name:   "tdj",
 		Status: 1,
-		SqlBaseEntity: &SqlBaseEntity{
+		SqlBaseEntity: SqlBaseEntity{
 			AddTime:  time.Now(),
 			EditTime: time.Now(),
 		},
 	}
 
 	fmt.Println("========test Insert")
-	_ = orm
-	_ = item
 	tableName := "demo"
-	err := orm.Insert(tableName, item)
+	ids, err := orm.Insert(tableName, tableName, "Id", item)
 	if err != nil {
 		fmt.Println(err)
+	} else {
+		fmt.Println(ids)
 	}
 
 	fmt.Println("========test List")
 
-	ids := []int64{1, 2, 3}
 	var data []*demoEntity
 	demoEntityType := reflect.TypeOf(demoEntity{})
 	err = orm.ListByIds(tableName, ids, "id desc", demoEntityType, &data)
 	if err != nil {
 		fmt.Println(err)
-	}
-	for i, item := range data {
-		fmt.Println(i, item)
+	} else {
+		for i, item := range data {
+			fmt.Println(i, item)
+		}
 	}
 
 	fmt.Println("========test SimpleTotalAnd")
@@ -130,7 +130,7 @@ func TestOrmInsertGetListUpdateDelete(t *testing.T) {
 
 	fmt.Println("========test Delete")
 
-	//result := orm.Dao().DeleteById(tableName, ids[0])
-	//
-	//fmt.Println(result)
+	result := orm.Dao().DeleteById(tableName, ids[0])
+
+	fmt.Println(result)
 }
