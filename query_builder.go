@@ -70,7 +70,7 @@ func (qb *QueryBuilder) Insert(tableName string, columnNames ...string) *QueryBu
 func (qb *QueryBuilder) Values(values ...[]interface{}) *QueryBuilder {
 	rawNum := len(values) - 1
 	if rawNum == -1 {
-		return nil
+		return qb
 	}
 
 	for i := 0; i < rawNum; i++ {
@@ -97,7 +97,7 @@ func (qb *QueryBuilder) Update(tableName string) *QueryBuilder {
 func (qb *QueryBuilder) Set(items ...*QueryItem) *QueryBuilder {
 	n := len(items) - 1
 	if n == -1 {
-		return nil
+		return qb
 	}
 
 	qb.query += " set "
@@ -120,7 +120,7 @@ func (qb *QueryBuilder) Select(tableName, what string) *QueryBuilder {
 
 func (qb *QueryBuilder) WhereAnd(conditions ...*QueryItem) *QueryBuilder {
 	if len(conditions) == 0 {
-		return nil
+		return qb
 	}
 
 	qb.query += " where "
@@ -130,7 +130,7 @@ func (qb *QueryBuilder) WhereAnd(conditions ...*QueryItem) *QueryBuilder {
 
 func (qb *QueryBuilder) WhereOr(conditions ...*QueryItem) *QueryBuilder {
 	if len(conditions) == 0 {
-		return nil
+		return qb
 	}
 
 	qb.query += " where "
@@ -154,7 +154,7 @@ func (qb *QueryBuilder) GroupBy(columnNames string) *QueryBuilder {
 
 func (qb *QueryBuilder) HavingAnd(conditions ...*QueryItem) *QueryBuilder {
 	if len(conditions) == 0 {
-		return nil
+		return qb
 	}
 
 	qb.query += " having "
@@ -174,7 +174,7 @@ func (qb *QueryBuilder) HavingOr(conditions ...*QueryItem) *QueryBuilder {
 
 func (qb *QueryBuilder) Limit(offset, cnt int64) *QueryBuilder {
 	if offset < 0 || cnt <= 0 {
-		return nil
+		return qb
 	}
 
 	qb.query += " limit ?, ?"
