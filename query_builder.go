@@ -164,7 +164,7 @@ func (qb *QueryBuilder) HavingAnd(conditions ...*QueryItem) *QueryBuilder {
 
 func (qb *QueryBuilder) HavingOr(conditions ...*QueryItem) *QueryBuilder {
 	if len(conditions) == 0 {
-		return nil
+		return qb
 	}
 
 	qb.query += " having "
