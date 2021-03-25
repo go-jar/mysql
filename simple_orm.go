@@ -209,6 +209,17 @@ func (so *SimpleOrm) ListByIds(tableName string, ids []int64, orderBy string, en
 	return ReflectQueryRowsToEntityList(rows, entityType, listPtr)
 }
 
+func (so *SimpleOrm) ListByIdsLimit(tableName string, ids []int64, orderBy string, offset, limit int64, entityType reflect.Type, listPtr interface{}) error {
+	rows, err := so.Dao().SelectByIdsLimit(tableName, "*", orderBy, offset, limit, ids...)
+	defer so.PutBackClient()
+
+	if err != nil {
+		return err
+	}
+
+	return ReflectQueryRowsToEntityList(rows, entityType, listPtr)
+}
+
 func (so *SimpleOrm) SimpleQueryAnd(tableName string, qp *QueryParams, entityType reflect.Type, listPtr interface{}) error {
 	var setItems []*QueryItem
 
